@@ -214,20 +214,9 @@ h3 {
   color: var(--muted);
 }
 
-.case-card strong {
+.case-card strong,
+.case-source__block h5 {
   color: var(--ink);
-}
-
-.case-source {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.case-source__block {
-  min-width: 0;
-  padding: 18px;
-  background: var(--soft);
 }
 
 .case-source__block h4 {
@@ -239,8 +228,41 @@ h3 {
 }
 
 .case-source__block p + p,
+.case-source__block h5 + p,
+.case-source__block hr + p,
 .case-analysis p + p {
   margin-top: 10px;
+}
+
+.case-source {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.case-source__block {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: #fffaf1;
+  font-size: 0.94rem;
+}
+
+.case-source__block--work {
+  background: #f8fbf8;
+}
+
+.case-source__block h5 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.case-source__block hr {
+  height: 1px;
+  margin: 16px 0;
+  border: 0;
+  background: var(--line);
 }
 
 .case-analysis {
@@ -392,7 +414,9 @@ h3 {
   }
 
   .case-source__block {
+    max-height: none;
     padding: 5mm;
+    font-size: 8.5pt;
   }
 
   .case-analysis {
