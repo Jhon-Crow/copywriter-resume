@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const root = path.resolve(__dirname, "..");
-const html = normalizeVisibleText(fs.readFileSync(path.join(root, "index.html"), "utf8"));
+const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const casesDir = path.join(root, "cases");
 
 const failures = [];
@@ -13,13 +13,14 @@ for (const caseName of fs.readdirSync(casesDir).sort()) {
 
   for (const sourceName of ["task.md", "work.md"]) {
     const sourcePath = path.join(casePath, sourceName);
-    const paragraphs = visibleParagraphs(fs.readFileSync(sourcePath, "utf8"));
+    const expectedText = normalizeVisibleText(markdownToVisibleText(fs.readFileSync(sourcePath, "utf8")));
+    const actualText = normalizeVisibleText(sectionHtmlFor(caseName, sourceName));
 
-    paragraphs.forEach((paragraph, index) => {
-      if (!html.includes(paragraph)) {
-        failures.push(`${caseName}/${sourceName} paragraph ${index + 1}: ${paragraph}`);
-      }
-    });
+    if (actualText !== expectedText) {
+      failures.push(`${caseName}/${sourceName}`);
+      failures.push(`  expected: ${expectedText}`);
+      failures.push(`  actual:   ${actualText}`);
+    }
   }
 }
 
@@ -29,22 +30,34 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log("All task.md and work.md visible text is present in index.html.");
+console.log("All case task.md and work.md text matches index.html exactly.");
 
-function visibleParagraphs(markdown) {
+function sectionHtmlFor(caseName, sourceName) {
+  const caseNumber = caseName.match(/\d+/)?.[0];
+  const articles = html.match(/<article class="case-card">[\s\S]*?<\/article>/g) || [];
+  const article = articles[Number(caseNumber) - 1];
+  const sections = article?.match(/<section class="case-source__block[^"]*">[\s\S]*?<\/section>/g) || [];
+  const sectionIndex = sourceName === "task.md" ? 0 : 1;
+  const section = sections[sectionIndex];
+
+  if (!section) {
+    return "";
+  }
+
+  return section.replace(/<h4>[\s\S]*?<\/h4>/, "");
+}
+
+function markdownToVisibleText(markdown) {
   return markdown
     .trim()
-    .split(/\n{2,}/)
-    .flatMap((block) => block.split("\n"))
+    .split("\n")
     .map(stripMarkdown)
-    .map(normalizeVisibleText)
-    .filter((line) => line.length > 0 && line !== "---");
+    .join("\n");
 }
 
 function stripMarkdown(text) {
   return text
     .replace(/^#\s+/, "")
-    .replace(/^—\s+/, "")
     .replace(/\*\*(.*?)\*\*/g, "$1")
     .replace(/\*(.*?)\*/g, "$1")
     .replace(/<u>(.*?)<\/u>/g, "$1");
@@ -58,6 +71,9 @@ function normalizeVisibleText(text) {
     .replace(/&gt;/g, ">")
     .replace(/&amp;/g, "&")
     .replace(/<\/?(strong|em|u)>/g, "")
+    .replace(/<\/h5>/g, "\n")
+    .replace(/<\/p>/g, "\n")
+    .replace(/<hr\s*\/?>/g, "\n---\n")
     .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
