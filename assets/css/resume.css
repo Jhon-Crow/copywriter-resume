@@ -209,12 +209,14 @@ h3 {
 
 .case-card p,
 .case-source__block p,
+.case-full-text__block p,
 .case-analysis p {
   margin-bottom: 0;
   color: var(--muted);
 }
 
-.case-card strong {
+.case-card strong,
+.case-full-text__block h5 {
   color: var(--ink);
 }
 
@@ -230,7 +232,8 @@ h3 {
   background: var(--soft);
 }
 
-.case-source__block h4 {
+.case-source__block h4,
+.case-full-text__block h4 {
   margin: 0 0 10px;
   color: var(--ink);
   font-size: 0.88rem;
@@ -239,8 +242,45 @@ h3 {
 }
 
 .case-source__block p + p,
+.case-full-text__block p + p,
+.case-full-text__block h5 + p,
+.case-full-text__block hr + p,
 .case-analysis p + p {
   margin-top: 10px;
+}
+
+.case-full-text {
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.case-full-text__block {
+  min-width: 0;
+  max-height: 560px;
+  overflow: auto;
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: #fffaf1;
+  font-size: 0.94rem;
+}
+
+.case-full-text__block--work {
+  background: #f8fbf8;
+}
+
+.case-full-text__block h5 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.case-full-text__block hr {
+  height: 1px;
+  margin: 16px 0;
+  border: 0;
+  background: var(--line);
 }
 
 .case-analysis {
@@ -280,6 +320,10 @@ h3 {
     grid-column: auto;
   }
 
+  .case-full-text {
+    grid-column: auto;
+  }
+
   .hero {
     min-height: auto;
   }
@@ -302,6 +346,7 @@ h3 {
   .contacts,
   .skill-grid,
   .case-source,
+  .case-full-text,
   .case-analysis {
     display: grid;
     grid-template-columns: 1fr;
@@ -391,8 +436,18 @@ h3 {
     gap: 4mm;
   }
 
+  .case-full-text {
+    gap: 4mm;
+  }
+
   .case-source__block {
     padding: 5mm;
+  }
+
+  .case-full-text__block {
+    max-height: none;
+    padding: 5mm;
+    font-size: 8.5pt;
   }
 
   .case-analysis {
