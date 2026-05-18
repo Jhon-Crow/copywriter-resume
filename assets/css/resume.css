@@ -242,8 +242,6 @@ h3 {
 
 .case-source__block {
   min-width: 0;
-  max-height: 560px;
-  overflow: auto;
   padding: 18px;
   border: 1px solid var(--line);
   background: #fffaf1;

@@ -3,6 +3,7 @@ const path = require("path");
 
 const root = path.resolve(__dirname, "..");
 const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
+const css = fs.readFileSync(path.join(root, "assets/css/resume.css"), "utf8");
 const casesDir = path.join(root, "cases");
 
 const failures = [];
@@ -30,7 +31,10 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
+assertCaseBlocksAreNotClippedOnScreen();
+
 console.log("All case task.md and work.md text matches index.html exactly.");
+console.log("Case task/work blocks are not clipped on screen.");
 
 function sectionHtmlFor(caseName, sourceName) {
   const caseNumber = caseName.match(/\d+/)?.[0];
@@ -77,4 +81,26 @@ function normalizeVisibleText(text) {
     .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function assertCaseBlocksAreNotClippedOnScreen() {
+  const screenCss = css.replace(/@media print \{[\s\S]*?\n\}/g, "");
+  const blockRule = screenCss.match(/\.case-source__block\s*\{([\s\S]*?)\}/);
+
+  if (!blockRule) {
+    failures.push("CSS rule .case-source__block was not found.");
+    return;
+  }
+
+  const ruleBody = blockRule[1];
+  const clippingDeclarations = [
+    /\bmax-height\s*:/,
+    /\boverflow\s*:\s*(?:auto|hidden|scroll)\b/,
+    /\boverflow-y\s*:\s*(?:auto|hidden|scroll)\b/,
+    /\b-webkit-line-clamp\s*:/
+  ];
+
+  if (clippingDeclarations.some((pattern) => pattern.test(ruleBody))) {
+    failures.push("CSS rule .case-source__block clips task/work text on screen.");
+  }
 }
